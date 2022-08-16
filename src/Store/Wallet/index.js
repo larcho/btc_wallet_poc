@@ -9,11 +9,11 @@ const slice = createSlice({
     addressChangeIndex: 0,
   },
   reducers: {
-    setWalletCreated: (state, { payload: { walletCreated } }) => {
-      state.walletCreated = walletCreated
+    setWalletCreated: (state, action) => {
+      state.walletCreated = action.payload
     },
-    setWalletSeed: (state, { payload: { hdSeed } }) => {
-      state.walletHDSeed = hdSeed
+    setWalletSeed: (state, action) => {
+      state.walletHDSeed = action.payload
       state.walletCreated = true
     },
     increaseAddressReceiveIndex: state => {

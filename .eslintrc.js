@@ -1,6 +1,10 @@
 module.exports = {
   root: true,
-  extends: ['@react-native-community', 'prettier'],
+  extends: [
+    '@react-native-community',
+    'prettier',
+    'plugin:react-hooks/recommended',
+  ],
   rules: {
     semi: ['error', 'never'],
     'object-curly-spacing': ['error', 'always'],

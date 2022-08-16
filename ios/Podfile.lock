@@ -362,6 +362,8 @@ PODS:
     - React-Core
   - RNGestureHandler (2.5.0):
     - React-Core
+  - RNSecureKeyStore (1.0.0):
+    - React
   - SocketRocket (0.6.0)
   - Yoga (1.14.0)
   - YogaKit (1.18.1):
@@ -427,6 +429,7 @@ DEPENDENCIES:
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
   - "RNCAsyncStorage (from `../node_modules/@react-native-async-storage/async-storage`)"
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
+  - RNSecureKeyStore (from `../node_modules/react-native-secure-key-store/ios/RNSecureKeyStore.podspec`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
@@ -518,6 +521,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-async-storage/async-storage"
   RNGestureHandler:
     :path: "../node_modules/react-native-gesture-handler"
+  RNSecureKeyStore:
+    :path: "../node_modules/react-native-secure-key-store/ios/RNSecureKeyStore.podspec"
   Yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
@@ -570,10 +575,11 @@ SPEC CHECKSUMS:
   ReactCommon: 8f67bd7e0a6afade0f20718f859dc8c2275f2e83
   RNCAsyncStorage: b2489b49e38c85e10ed45a888d13a2a4c7b32ea1
   RNGestureHandler: bad495418bcbd3ab47017a38d93d290ebd406f50
+  RNSecureKeyStore: f1ad870e53806453039f650720d2845c678d89c8
   SocketRocket: fccef3f9c5cedea1353a9ef6ada904fde10d6608
   Yoga: ff994563b2fd98c982ca58e8cd9db2cdaf4dda74
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
 
-PODFILE CHECKSUM: 28a72e3f4bc7cf30f241d555d3db14f9f00b48b1
+PODFILE CHECKSUM: ca3f3a02291d0545b8a0f0842cd30e4b9103eaab
 
 COCOAPODS: 1.11.3

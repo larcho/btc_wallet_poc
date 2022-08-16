@@ -15,17 +15,25 @@ import {
 // Will be updated with Reduxjs toolkit query service, don't use axios
 // import { api } from '@/Services/api'
 import theme from './Theme'
-
-const reducers = combineReducers({
-  theme,
-  //api: api.reducer,
-})
+import wallet from './Wallet'
 
 const persistConfig = {
   key: 'root',
   storage: AsyncStorage,
-  whitelist: ['theme'],
+  blacklist: ['wallet'],
 }
+
+const walletConfig = {
+  key: 'wallet',
+  storage: AsyncStorage,
+  blacklist: ['walletHDSeed'],
+}
+
+const reducers = combineReducers({
+  theme,
+  wallet: persistReducer(walletConfig, wallet),
+  //api: api.reducer,
+})
 
 const persistedReducer = persistReducer(persistConfig, reducers)
 

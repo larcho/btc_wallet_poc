@@ -6,7 +6,7 @@
  * @flow strict-local
  */
 
-import React from 'react'
+import React, { useEffect } from 'react'
 import {
   ScrollView,
   StyleSheet,
@@ -22,6 +22,7 @@ import {
   LearnMoreLinks,
   ReloadInstructions,
 } from 'react-native/Libraries/NewAppScreen'
+import RNSecureKeyStore, { ACCESSIBLE } from 'react-native-secure-key-store'
 
 const Section = ({ children, title }) => {
   const isDarkMode = useColorScheme() === 'dark'
@@ -57,6 +58,21 @@ const TestContainer = () => {
   const backgroundStyle = {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
   }
+
+  useEffect(() => {
+    RNSecureKeyStore.get('testKey4').then(
+      res => {
+        console.log(res)
+      },
+      err => {
+        console.error(err)
+        console.log(err.hasOwnProperty())
+        RNSecureKeyStore.set('testKey4', 'testValue4', {
+          accessible: ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
+        })
+      },
+    )
+  }, [])
 
   return (
     <ScrollView

@@ -7,7 +7,7 @@ const WALLET_SECUREKEYSTORE_KEY = 'walletHDSeed'
 
 export const createWallet = async dispatch => {
   const code = new Mnemonic(Mnemonic.Words.ENGLISH)
-  const HDPrivateKey = code.toHDPrivateKey('', Config.WALLET_NETWORK)
+  const HDPrivateKey = code.toHDPrivateKey('', Config.WALLET_BTC_NETWORK)
   try {
     await RNSecureKeyStore.set(
       WALLET_SECUREKEYSTORE_KEY,

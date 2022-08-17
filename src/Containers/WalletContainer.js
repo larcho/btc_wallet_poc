@@ -2,12 +2,14 @@ import React from 'react'
 import { View, Text, Pressable, StyleSheet, Alert } from 'react-native'
 import { useSelector, useDispatch } from 'react-redux'
 import { createWallet as createWalletService } from '../Services/wallet'
+import { increaseAddressReceiveIndex } from '../Store/Wallet'
 
 const WalletContainer = () => {
   const dispatch = useDispatch()
 
   const walletCreated = useSelector(state => state.wallet.walletCreated)
   const walletHDSeed = useSelector(state => state.wallet.walletHDSeed)
+  const addressReceive = useSelector(state => state.wallet.addressReceive)
   const addressReceiveIndex = useSelector(
     state => state.wallet.addressReceiveIndex,
   )
@@ -21,13 +23,25 @@ const WalletContainer = () => {
 
   return (
     <View style={styles.mainContainer}>
-      <Text style={styles.text}>Seed: {walletHDSeed}</Text>
-      <Text style={styles.text}>Address</Text>
+      <Text style={styles.text}>
+        <Text style={styles.textLabel}>Seed: </Text>
+        <Text selectable={true}>{walletHDSeed}</Text>
+      </Text>
+      <Text style={styles.text}>
+        <Text style={styles.textLabel}>Address: </Text>
+        <Text selectable={true}>{addressReceive}</Text>
+      </Text>
       <Text style={styles.text}>Derive Index: {addressReceiveIndex}</Text>
-      <Pressable style={styles.button}>
-        <Text style={styles.buttonText}>Create new Public Address</Text>
-      </Pressable>
-      {!walletCreated && (
+      {walletCreated ? (
+        <Pressable
+          style={styles.button}
+          onPress={() => {
+            dispatch(increaseAddressReceiveIndex())
+          }}
+        >
+          <Text style={styles.buttonText}>Create new Public Address</Text>
+        </Pressable>
+      ) : (
         <Pressable style={styles.button} onPress={createWallet}>
           <Text style={styles.buttonText}>Create Wallet</Text>
         </Pressable>
@@ -46,6 +60,10 @@ const styles = StyleSheet.create({
   },
   text: {
     flex: 1,
+    textAlign: 'center',
+  },
+  textLabel: {
+    fontWeight: 'bold',
   },
   button: {
     backgroundColor: 'black',

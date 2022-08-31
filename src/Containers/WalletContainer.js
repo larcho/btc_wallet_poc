@@ -1,51 +1,67 @@
-import React from 'react'
-import { View, Text, Pressable, StyleSheet, Alert } from 'react-native'
+import React, { useState } from 'react'
+import _ from 'lodash'
+import { View, StyleSheet } from 'react-native'
+import Clipboard from '@react-native-clipboard/clipboard'
+import { Text, Button, Snackbar } from 'react-native-paper'
 import { useSelector, useDispatch } from 'react-redux'
-import { createWallet as createWalletService } from '../Services/wallet'
 import { increaseAddressReceiveIndex } from '../Store/Wallet'
+import { getWalletBalance } from '../Services/wallet'
 
 const WalletContainer = () => {
   const dispatch = useDispatch()
 
-  const walletCreated = useSelector(state => state.wallet.walletCreated)
-  const walletHDSeed = useSelector(state => state.wallet.walletHDSeed)
-  const addressReceive = useSelector(state => state.wallet.addressReceive)
-  const addressReceiveIndex = useSelector(
-    state => state.wallet.addressReceiveIndex,
+  const { addressReceive, utxoAddressReceive, utxoAddressChange } = useSelector(
+    state => state.wallet,
   )
+  const [showAddressCopiedBar, setShowAddressCopiedBar] = useState(false)
 
-  const createWallet = async () => {
-    const mnemonicWords = await createWalletService(dispatch)
-    Alert.alert('Wallet created', `Your mnemonic words are ${mnemonicWords}`, [
-      { text: 'OK' },
-    ])
-  }
+  const balance = getWalletBalance(utxoAddressReceive, utxoAddressChange)
 
   return (
     <View style={styles.mainContainer}>
-      <Text style={styles.text}>
-        <Text style={styles.textLabel}>Seed: </Text>
-        <Text selectable={true}>{walletHDSeed}</Text>
-      </Text>
-      <Text style={styles.text}>
-        <Text style={styles.textLabel}>Address: </Text>
-        <Text selectable={true}>{addressReceive}</Text>
-      </Text>
-      <Text style={styles.text}>Derive Index: {addressReceiveIndex}</Text>
-      {walletCreated ? (
-        <Pressable
-          style={styles.button}
-          onPress={() => {
-            dispatch(increaseAddressReceiveIndex())
+      <View style={styles.topContainer}>
+        <Text variant="headlineMedium" style={styles.text}>
+          Balance
+        </Text>
+        <Text variant="displayMedium" style={styles.text}>
+          {(balance / 100000000).toFixed(8)}
+        </Text>
+        <Text variant="labelMedium" style={styles.text}>
+          BTC
+        </Text>
+      </View>
+      <View style={styles.bottomContainer}>
+        <Text variant="headlineMedium" style={styles.text}>
+          Receiving Address
+        </Text>
+        <Text
+          variant="bodyLarge"
+          style={styles.text}
+          onLongPress={() => {
+            Clipboard.setString(addressReceive)
+            setShowAddressCopiedBar(true)
           }}
         >
-          <Text style={styles.buttonText}>Create new Public Address</Text>
-        </Pressable>
-      ) : (
-        <Pressable style={styles.button} onPress={createWallet}>
-          <Text style={styles.buttonText}>Create Wallet</Text>
-        </Pressable>
-      )}
+          {addressReceive}
+        </Text>
+        <Button
+          mode="contained"
+          style={styles.addressButton}
+          onPress={() => {
+            dispatch(increaseAddressReceiveIndex)
+          }}
+        >
+          New Receive Address
+        </Button>
+      </View>
+      <Snackbar
+        visible={showAddressCopiedBar}
+        onDismiss={() => {
+          setShowAddressCopiedBar(false)
+        }}
+      >
+        Address copied to clipboard
+      </Snackbar>
     </View>
   )
 }
@@ -53,27 +69,21 @@ const WalletContainer = () => {
 const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     alignItems: 'center',
     padding: 30,
-    backgroundColor: 'white',
+  },
+  topContainer: {
+    marginBottom: 40,
+  },
+  bottomContainer: {
+    marginTop: 40,
   },
   text: {
-    flex: 1,
     textAlign: 'center',
   },
-  textLabel: {
-    fontWeight: 'bold',
-  },
-  button: {
-    backgroundColor: 'black',
-    borderRadius: 4,
-    paddingVertical: 12,
-    paddingHorizontal: 32,
-    margin: 10,
-  },
-  buttonText: {
-    color: 'white',
+  addressButton: {
+    marginTop: 20,
   },
 })
 

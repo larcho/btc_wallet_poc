@@ -66,10 +66,11 @@ export const fetchUTXOs = async () => {
   let ws
   try {
     ws = await connectToServer()
+    console.log("Fetching UTXOs")
     const { wallet } = store.getState()
-    if (!wallet.walletHDSeed) {
+    if (!wallet.walletCreated || !wallet.walletHDSeed) {
       ws.close()
-      return
+      return false
     }
     let transactionsHistory = [...wallet.transactionsHistory]
     const walletPrivateKey = new bitcore.HDPrivateKey(wallet.walletHDSeed)
@@ -120,6 +121,7 @@ export const fetchUTXOs = async () => {
   } finally {
     if (ws) ws.close()
   }
+  return true
 }
 
 const fetchTransactionsDetail = async (

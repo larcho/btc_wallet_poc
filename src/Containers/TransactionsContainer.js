@@ -17,7 +17,7 @@ import {
 } from '../Store/Wallet'
 import TransactionListItem from '../Components/TransactionListItem'
 import { createTransaction } from '../Services/wallet'
-import { broadcastTransaction } from '../Services/electrumx'
+import { broadcastTransaction, fetchUTXOs } from '../Services/electrumx'
 
 const TransactionsContainer = () => {
   const dispatch = useDispatch()
@@ -27,10 +27,45 @@ const TransactionsContainer = () => {
   const [inputAmount, setInputAmount] = useState('')
   const [confirmTransaction, setConfirmTransaction] = useState(undefined)
   const [snackMessage, setSnackMessage] = useState('')
+  const [fetchingUTXOs, setFetchingUTXOs] = useState(false)
 
   const transactionsHistory = useSelector(
     state => state.wallet.transactionsHistory,
   )
+
+  const componentFetchUTXOs = async () => {
+    setFetchingUTXOs(true)
+    await fetchUTXOs()
+    setFetchingUTXOs(false)
+  }
+
+  const submitTransaction = () => {
+    broadcastTransaction(confirmTransaction.tx.serialize())
+      .then(result => {
+        const newTransaction = {
+          txid: result,
+          time: Math.round(new Date().getTime() / 1000),
+          address: inputAddress,
+          amount: parseFloat(inputAmount),
+          type: 'send',
+        }
+        dispatch(
+          setTransactionsHistory([...transactionsHistory, newTransaction]),
+        )
+        dispatch(setUTXOAddressReceive(confirmTransaction.utxoAddressReceive))
+        dispatch(setUTXOAddressChange(confirmTransaction.utxoAddressChange))
+        dispatch(increaseAddressChangeIndex())
+        setSnackMessage('Transaction sent')
+      })
+      .catch(error => {
+        setSnackMessage(error.message)
+      })
+      .finally(() => {
+        setConfirmTransaction(false)
+        setInputAddress('')
+        setInputAmount('')
+      })
+  }
 
   return (
     <SafeAreaView style={styles.mainContainer}>
@@ -41,6 +76,8 @@ const TransactionsContainer = () => {
         data={transactionsHistory}
         renderItem={TransactionListItem}
         keyExtractor={item => item.txid}
+        refreshing={fetchingUTXOs}
+        onRefresh={componentFetchUTXOs}
       />
       <FAB
         icon="open-in-new"
@@ -54,6 +91,8 @@ const TransactionsContainer = () => {
         visible={showCreateDialog}
         onDismiss={() => {
           setShowCreateDialog(false)
+          setInputAddress('')
+          setInputAmount('')
         }}
       >
         <Dialog.Title>Create New Transaction</Dialog.Title>
@@ -61,14 +100,15 @@ const TransactionsContainer = () => {
           <TextInput
             label="Address"
             mode="outlined"
-            autoCorrect="false"
+            autoCorrect={false}
+            autoCapitalize={false}
             keyboardType="default"
             onChangeText={text => setInputAddress(text)}
           />
           <TextInput
             label="Amount"
             mode="outlined"
-            autoCorrect="false"
+            autoCorrect={false}
             keyboardType="decimal-pad"
             onChangeText={text => setInputAmount(text)}
           />
@@ -77,6 +117,8 @@ const TransactionsContainer = () => {
           <Button
             onPress={() => {
               setShowCreateDialog(false)
+              setInputAddress('')
+              setInputAmount('')
             }}
           >
             Cancel
@@ -95,7 +137,9 @@ const TransactionsContainer = () => {
                   )
                 }
               } catch (error) {
-                console.log(error)
+                setSnackMessage(error.message)
+                setInputAddress('')
+                setInputAmount('')
               }
             }}
             disabled={!inputAddress || !inputAmount}
@@ -108,6 +152,8 @@ const TransactionsContainer = () => {
         visible={!!confirmTransaction}
         onDismiss={() => {
           setConfirmTransaction(undefined)
+          setInputAddress('')
+          setInputAmount('')
         }}
       >
         <Dialog.Title>Confirm Transaction</Dialog.Title>
@@ -130,48 +176,13 @@ const TransactionsContainer = () => {
           <Button
             onPress={() => {
               setConfirmTransaction(undefined)
+              setInputAddress('')
+              setInputAmount('')
             }}
           >
             Cancel
           </Button>
-          <Button
-            onPress={() => {
-              broadcastTransaction(confirmTransaction.tx.serialize())
-                .then(result => {
-                  const newTransaction = {
-                    txid: result,
-                    time: Math.round(new Date().getTime() / 1000),
-                    address: inputAddress,
-                    amount: parseFloat(inputAmount),
-                    type: 'send',
-                  }
-                  dispatch(
-                    setTransactionsHistory([
-                      ...transactionsHistory,
-                      newTransaction,
-                    ]),
-                  )
-                  dispatch(
-                    setUTXOAddressReceive(
-                      confirmTransaction.utxoAddressReceive,
-                    ),
-                  )
-                  dispatch(
-                    setUTXOAddressChange(confirmTransaction.utxoAddressChange),
-                  )
-                  dispatch(increaseAddressChangeIndex())
-                  setSnackMessage('Transaction sent')
-                })
-                .catch(error => {
-                  setSnackMessage(error.message)
-                })
-                .finally(() => {
-                  setConfirmTransaction(false)
-                })
-            }}
-          >
-            Confirm
-          </Button>
+          <Button onPress={submitTransaction}>Confirm</Button>
         </Dialog.Actions>
       </Dialog>
       <Snackbar

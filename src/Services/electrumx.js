@@ -21,7 +21,7 @@ const connectToServer = async () => {
       }
       if (new Date() - timeoutStart > 1000 * 30) {
         clearInterval(timer)
-        reject('Unable to connect')
+        reject(new Error('Unable to connect'))
       }
     }, 10)
   })
@@ -36,7 +36,10 @@ const sendCommand = async (ws, method, params = []) => {
       clearInterval(timer)
       const response = JSON.parse(event.data)
       if (response.id !== messageID) {
-        reject('Message ID missmatch')
+        const error = new Error('Message ID missmatch')
+        error.responseID = response.id
+        error.messageID = messageID
+        reject(error)
       } else {
         resolve(JSON.parse(event.data))
       }
@@ -45,7 +48,7 @@ const sendCommand = async (ws, method, params = []) => {
       if (new Date() - timeoutStart > 1000 * 30) {
         ws.removeEventListener('message', onMessage)
         clearInterval(timer)
-        reject('Message timeout')
+        reject(new Error('Message timeout'))
       }
     }, 10)
     ws.addEventListener('message', onMessage)
@@ -148,6 +151,33 @@ const fetchTransactionsDetail = async (
         transactionsHistory = [...transactionsHistory, transactionItem]
       }
     }
-    return transactionsHistory
   }
+  return transactionsHistory
+}
+
+export const broadcastTransaction = serializedTransaction => {
+  return new Promise((resolve, reject) => {
+    connectToServer()
+      .then(ws => {
+        sendCommand(ws, 'blockchain.transaction.broadcast', [
+          serializedTransaction,
+        ])
+          .then(broadcastResponse => {
+            if (broadcastResponse.result) {
+              resolve(broadcastResponse.result)
+            } else {
+              reject(broadcastResponse.error || new Error('Unexpected error'))
+            }
+          })
+          .catch(error => {
+            reject(error)
+          })
+          .finally(() => {
+            ws.close()
+          })
+      })
+      .catch(error => {
+        reject(error)
+      })
+  })
 }

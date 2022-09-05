@@ -1,5 +1,4 @@
 import React, { useState } from 'react'
-import _ from 'lodash'
 import { View, StyleSheet } from 'react-native'
 import Clipboard from '@react-native-clipboard/clipboard'
 import { Text, Button, Snackbar } from 'react-native-paper'

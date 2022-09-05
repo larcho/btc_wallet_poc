@@ -46,7 +46,6 @@ const slice = createSlice({
       const seed = action.payload
       state.walletHDSeed = seed
       state.walletCreated = !!seed
-      console.log(seed)
       if (!seed) return
       const walletPrivateKey = new bitcore.HDPrivateKey(seed)
       setReceiveAddress(state, walletPrivateKey)

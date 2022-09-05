@@ -1,3 +1,6 @@
 export { default as TestContainer } from './TestContainer'
 export { default as WalletContainer } from './WalletContainer'
 export { default as TransactionsContainer } from './TransactionsContainer'
+export { default as WalletCreationWordsContainer } from './WalletCreationWordsContainer'
+export { default as WalletCreationConfirmWordContainer } from './WalletCreationConfirmWordContainer'
+export { default as WalletCreationFinishContainer } from './WalletCreationFinishContainer'

@@ -8,19 +8,19 @@ import { store } from '../Store'
 
 const WALLET_SECUREKEYSTORE_KEY = 'walletHDSeed'
 
-export const createWallet = async () => {
+export const createWallet = () => {
   const code = new Mnemonic(Mnemonic.Words.ENGLISH)
   const HDPrivateKey = code.toHDPrivateKey('', Config.WALLET_BTC_NETWORK)
+  return { wordlist: code.toString().split(' '), hdSeed: HDPrivateKey.xprivkey }
+}
+
+export const storeWallet = async hdSeed => {
   try {
-    await RNSecureKeyStore.set(
-      WALLET_SECUREKEYSTORE_KEY,
-      HDPrivateKey.xprivkey,
-      {
-        accessible: ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
-      },
-    )
-    store.dispatch(setWalletSeed(HDPrivateKey.xprivkey))
-    return code.toString()
+    await RNSecureKeyStore.set(WALLET_SECUREKEYSTORE_KEY, hdSeed, {
+      accessible: ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
+    })
+    store.dispatch(setWalletSeed(hdSeed))
+    return true
   } catch (error) {
     console.error(error)
     return false
@@ -49,7 +49,7 @@ export const createTransaction = (sendToAddress, amount) => {
     wallet.utxoAddressReceive,
     wallet.utxoAddressChange,
   )
-  if (amount > balance) throw 'Not enough Balance'
+  if (amount > balance) throw new Error('Not enough Balance')
   const walletPrivateKey = new bitcore.HDPrivateKey(wallet.walletHDSeed)
   let outputs = []
   let outputSatoshiSum = 0

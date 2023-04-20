@@ -1,6 +1,8 @@
 Mobile App
 =======
 
+React Native POC for Lightweight Crypto Wallet using Bitcore Libraries.
+
 ## Get Started
 
 ```

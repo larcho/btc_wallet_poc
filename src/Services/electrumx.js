@@ -66,7 +66,7 @@ export const fetchUTXOs = async () => {
   let ws
   try {
     ws = await connectToServer()
-    console.log("Fetching UTXOs")
+    console.log('Fetching UTXOs')
     const { wallet } = store.getState()
     if (!wallet.walletCreated || !wallet.walletHDSeed) {
       ws.close()
